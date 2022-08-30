@@ -1,0 +1,35 @@
+plugins {
+    id 'java'
+    id 'kr.entree.spigradle' version '2.2.4'
+}
+
+group 'org.sample'
+version '1.0-SNAPSHOT'
+apply plugin: 'groovy'
+
+repositories {
+
+    maven { url 'https://jitpack.io' }
+    maven { url "https://maven.enginehub.org/repo/" }
+
+}
+
+dependencies {
+
+    compileOnly spigot('1.18.2')
+    compileOnly fileTree(dir: 'api', include: ['*.jar'])
+
+    compileOnly 'com.sk89q.worldedit:worldedit-bukkit:7.2.12'
+
+}
+
+jar {
+    destinationDirectory.set(file('D:\\Project\\minecraft\\Commission\\플러그인테스트\\1.18.2\\plugins'))
+}
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
+
+
