@@ -3,5 +3,6 @@ main: me.github.mobarena.MobArena
 version: 1.0
 author: SkyExcel
 api-version: 1.13
+depend: [MythicMobs,ProtocolLib,WorldEdit]
 commands:
   arena:

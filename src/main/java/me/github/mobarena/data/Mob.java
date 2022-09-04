@@ -1,10 +1,10 @@
 package me.github.mobarena.data;
 
 import me.github.mobarena.MobArena;
-import org.bukkit.Material;
-import org.bukkit.entity.EntityType;
+import me.github.skyexcelcore.data.Config;
+import org.bukkit.Location;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 public class Mob {
 
@@ -16,20 +16,41 @@ public class Mob {
         this.player = player;
     }
 
-    public void Create(){
-        Config config = MobArena.Mob = new Config("mobs/" + name, MobArena.plugin);
+    public void Create() {
+        Config config = new Config("mob/" + name);
+        ConfigurationSection round = config.getConfig().createSection("arena.round." + config.getConfig().getConfigurationSection("arena.round").getKeys(false).size());
+        config.setSection(round);
+        if (config.getConfig().getConfigurationSection("arena.round") != null) {
+            round.set("round.spawn", null);
+            round.set("round.amount", null);
 
-        config.getConfig().set("name",name);
-        config.getConfig().set("health",100);
-        config.getConfig().set("speed",100);
-        config.getConfig().set("damage", 100);
-        config.getConfig().set("type", EntityType.SKELETON.name());
-        config.getConfig().set("spawn", 50);
+        } else {
+            config.getConfig().set("name", name);
+            config.getConfig().set("round.spawn", null);
+            config.getConfig().set("round.amount", null);
 
-        config.getConfig().set("dropitem", new ItemStack(Material.AIR));
-        config.getConfig().set("dropexp", 10);
-        config.getConfig().set("Ai", true);
 
+        }
         config.saveConfig();
+    }
+
+    public void SetDropItem() {
+        Config config = MobArena.Mob = new Config("mobs/" + name);
+        config.getConfig().set("dropitem", player.getInventory().getItemInMainHand());
+        config.saveConfig();
+    }
+
+    public void SetType(String type) {
+
+        Config config = MobArena.Mob = new Config("mobs/" + name);
+        config.getConfig().set("type", type);
+        config.saveConfig();
+    }
+
+    public Location getMonsterSpawn(int index, String type) {
+        Config mob = MobArena.Mob = new Config("arena/" + this.name + "/mob/" + type);
+        ConfigurationSection section = mob.getConfig().getConfigurationSection("round." + index);
+
+        return (Location) section.get("spawn");
     }
 }

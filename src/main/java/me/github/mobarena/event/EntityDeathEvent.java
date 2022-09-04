@@ -1,12 +1,12 @@
 package me.github.mobarena.event;
 
-import me.github.mobarena.MobArena;
-import me.github.mobarena.data.Config;
+import me.github.mobarena.data.Arena;
+import me.github.mobarena.data.PlayerData;
+import me.github.skyexcelcore.data.Region;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.inventory.ItemStack;
 
 public class EntityDeathEvent implements Listener {
     @EventHandler
@@ -14,11 +14,19 @@ public class EntityDeathEvent implements Listener {
         Entity entity = event.getEntity();
         Player player = event.getEntity().getKiller();
         String name = entity.getCustomName();
-        if(player instanceof  Player){
-            Config mob = MobArena.Mob = new Config("mobs/" + name, MobArena.plugin);
-            if (mob.isExist()) {
-                event.getDrops().clear();
-                event.getDrops().add(mob.getConfig().getObject("dropitem", ItemStack.class));
+
+        if (entity instanceof Player) { // 플레이어가 죽었을때
+
+        } else {
+            if (player instanceof Player) {  // 플레이어가 죽였을때
+                PlayerData data = new PlayerData(player);
+
+                String arenaName = data.getArena();
+                int round = data.getRound();
+                Arena arena = new Arena(arenaName, player);
+                if (arena.minTotal(round)) {
+                    player.sendMessage(arena.getTotal(round) + " 마리 남았습니다. 라운드 : " + round);
+                }
             }
         }
     }

@@ -1,1 +1,44 @@
-delay: 1 #다음 라운드로 넘어갈 딜레이를 설정합니다.
+#다음 라운드로 넘어갈 딜레이를 설정합니다. 모든 쿨타임 값은 millseconds(Long) 값으로 저장 됩니다.
+#명령어로 쿨타임을 추가하거나 수정 할 수 있습니다.
+next-round-delay: 1000
+
+#message-send-Type
+# ActionBar = 메세지를 액션바로 출력합니다.
+# Title = 메세지를 타이틀로 출력합니다.
+# Message = 메세지를 채팅으로 출력합니다.
+message:
+  cooltime-message:
+    msg: "%cooltime-d% %cooltime-h% %cooltime-m% %cooltime-s% 남았습니다"
+    send-type: Message
+    # Messag-send-type 이 Title이거나, Subtitle 일때 설정하시면 됩니다.
+    fade-in: 10
+    fade-out: 70
+    stay: 20
+  next-round-message:
+    msg: "%round%로 넘어갑니다."
+    send-type: Message
+    # Messag-send-type 이 Title이거나, Subtitle 일때 설정하시면 됩니다.
+    fade-in: 10
+    fade-out: 70
+    stay: 20
+  kill-message:
+    msg: "%monster%를 죽였습니다! %total%마리가 남았습니다."
+    send-type: Message
+    # Messag-send-type 이 Title이거나, Subtitle 일때 설정하시면 됩니다.
+    fade-in: 10
+    fade-out: 70
+    stay: 20
+  join-message:
+    msg: "%arena%&7에 입장하였습니다!"
+    send-type: Message
+    # Messag-send-type 이 Title이거나, Subtitle 일때 설정하시면 됩니다.
+    fade-in: 10
+    fade-out: 70
+    stay: 20
+  left-monster-message:
+    msg: "%size%&7마리 남았습니다."
+    send-type: Message
+    # Messag-send-type 이 Title이거나, Subtitle 일때 설정하시면 됩니다.
+    fade-in: 10
+    fade-out: 70
+    stay: 20
