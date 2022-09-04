@@ -88,9 +88,11 @@ public class Arena {
                 player.sendMessage(MobArena.prefix + "§c위치를 지정해 주세요!");
                 throw new RuntimeException(e);
             }
-
-
         }
+    }
+
+    public Config getConfig() {
+        return config;
     }
 
     public void addRound() {
@@ -219,7 +221,6 @@ public class Arena {
 
             if (uuid.size() - 1 == maxplayer) {
                 StartRound(name);
-
             }
             TeleportSpawn();
             StringData.sendJoinMessage(player);
@@ -301,7 +302,7 @@ public class Arena {
     public boolean minTotal(int round) {
         ConfigurationSection arenasection = config.getConfig().getConfigurationSection("arena.round." + round);
         int total = arenasection.getInt("total");
-        if (total != 1) {
+        if (total != 0) {
             total--;
             arenasection.set("total", total);
             config.saveConfig();

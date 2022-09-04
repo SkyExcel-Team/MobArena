@@ -28,6 +28,7 @@ public class CoolTime extends BukkitRunnable {
         time = new Time(CoolTime);
         this.playerdata = data;
 
+
     }
 
     @Override
@@ -36,22 +37,22 @@ public class CoolTime extends BukkitRunnable {
         int total = arena.getTotal(playerdata.getRound());
         if (total != 1) {
             if (time.SECOND() != 0 || time.MINUTE() != 0) {
-
                 Cooltime = time.minSecond(1);
 
                 StringData.sendCoolTimeMessage(player);
                 playerdata.setCoolTime(Cooltime);
-
             } else {
                 Cooltime = 0;
                 player.sendMessage("실패!");
                 cancel();
             }
         } else {
+
             playerdata.delayStart();
             cancel();
+            if (playerdata.getCoolTime().containsKey(player.getUniqueId()))
+                playerdata.getCoolTime().remove(player.getUniqueId());
         }
-
     }
 
     @Override

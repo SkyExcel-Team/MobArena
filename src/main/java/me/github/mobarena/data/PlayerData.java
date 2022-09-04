@@ -4,6 +4,7 @@ import me.github.mobarena.MobArena;
 import me.github.mobarena.runnable.CoolTime;
 import me.github.mobarena.runnable.Delay;
 import me.github.skyexcelcore.data.Config;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -55,13 +56,17 @@ public class PlayerData {
     }
 
     public void delayStart() {
+
+
         Delay delay = new Delay(player, this);
+
         if (!this.delay.containsKey(player.getUniqueId()))
             this.delay.put(player.getUniqueId(), delay);
-
-        this.delay.get(player.getUniqueId()).runTaskTimer(MobArena.plugin, 0,20);
+        if (this.delay.containsKey(player.getUniqueId()))
+            this.delay.get(player.getUniqueId()).runTaskTimer(MobArena.plugin, 0, 20);
 
     }
+
 
     public int getRound() {
         return config.getInteger("arena.round");
@@ -85,6 +90,15 @@ public class PlayerData {
         String name = getArena();
         Arena arena = new Arena(name, player);
 
+        if (arena.getCoolTime(getRound()) != -1) {
+            CoolTime coolTime = new CoolTime(player, this.cooltime, this);
+            if (!this.CoolTime.containsKey(player.getUniqueId())) {
+                this.CoolTime.put(player.getUniqueId(), coolTime);
+                this.CoolTime.get(player.getUniqueId()).runTaskTimer(MobArena.plugin, 0, 20);
+            }
+        }
+
+        player.sendMessage("다음 라운드로 넘어갑니다! " + round);
         config.setInteger("arena.round", round + 1);
         config.saveConfig();
 
@@ -116,4 +130,9 @@ public class PlayerData {
             config.saveConfig();
         }
     }
+
+    public HashMap<UUID, me.github.mobarena.runnable.CoolTime> getCoolTime() {
+        return CoolTime;
+    }
+
 }
