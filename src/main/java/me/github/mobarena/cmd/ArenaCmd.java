@@ -1,25 +1,22 @@
 package me.github.mobarena.cmd;
 
+import data.Config;
+import data.Region;
+import data.Time;
 import me.github.mobarena.MobArena;
 import me.github.mobarena.Util.Translate;
 import me.github.mobarena.data.Arena;
 import me.github.mobarena.data.Mob;
 import me.github.mobarena.hook.MythicMobs;
-import me.github.skyexcelcore.data.Config;
-import me.github.skyexcelcore.data.NBTMeta;
-import me.github.skyexcelcore.data.Region;
-import me.github.skyexcelcore.data.Time;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryView;
-import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -37,6 +34,28 @@ public class ArenaCmd implements CommandExecutor, TabCompleter {
 
             if (args.length > 0) {
                 switch (args[0]) {
+                    case "test":
+
+                        Config config = new Config("test");
+                        config.setPlugin(MobArena.plugin);
+                        if (config.getInventory("INVENTORY") != null) {
+                            Inventory inv = config.getInventory("INVENTORY");
+                            player.openInventory(inv);
+                        } else {
+                            Inventory inv = Bukkit.createInventory(null, 45, "MYINV");
+                            player.openInventory(inv);
+                        }
+
+                        break;
+                    case "cancel":
+                        if (args.length > 1) {
+                            name = args[1];
+                            arena = new Arena(name, player);
+                            arena.setCancelLocation();
+                        } else {
+                            player.sendMessage("§c이름을 입력해 주세요!");
+                        }
+                        break;
                     case "영역":
                         if (args.length > 1) {
                             name = args[1];
@@ -140,21 +159,6 @@ public class ArenaCmd implements CommandExecutor, TabCompleter {
                                         arena.SetMonsterSpawn(round, type);
                                     }
                                     break;
-                                case "create":
-                                    if (args.length > 2) {
-                                        name = args[2];
-                                        Mob mob = new Mob(name, player);
-                                        mob.Create();
-                                    }
-
-                                    break;
-                                case "dropitem":
-                                    if (args.length > 2) {
-                                        name = args[2];
-                                        Mob mob = new Mob(name, player);
-                                        mob.SetDropItem();
-                                    }
-                                    break;
                                 case "edit":
                                     if (args.length > 2) {
                                         name = args[2];
@@ -208,6 +212,25 @@ public class ArenaCmd implements CommandExecutor, TabCompleter {
                         }
                         break;
                 }
+            } else {
+                player.sendMessage(
+                        MobArena.prefix + " 커맨드 도움말 \n" +
+                                "/arena create <이름> - 아래나를 생성 합니다.\n" +
+                                "\n" +
+                                ChatColor.GRAY + "아레나 생성 전, 월드에딧으로 아레나 영역을 지정해야 합니다. \n" + ChatColor.WHITE +
+                                "/arena edit <이름> - 아레나 편집 GUI를 엽니다. \n" +
+                                "/arena spawn <이름>  - 플레이어가 이동 될 아레나의 위치를 지정합니다. \n" +
+                                "/arena round <이름> - 라운드를 추가합니다. \n" +
+                                "/arena cooltime <이름> <cooltime> <round> - 라운드 제한시간 입니다. \n" +
+                                "/arena cancel <이름> - 아레나에서 퇴출될시 좌표를 설정합니다." +
+                                "\n" +
+                                "/arena mob <몹 이름> add <아레나 이름> <round> - 몹을 아레나 라운드에 추가합니다. \n" +
+                                "/arena mob <몹 이름> remove <아레나 이름> <round> - 몹을 아레나 라운드에 제거합니다. \n" +
+                                "/arena mob create <이름> - 몹을 생성합니다.\n" +
+                                "/arena mob edit <이름> - 몹을 편집하는 GUI를 엽니다.\n" +
+                                "/arena mob dropitem <몬스터 이름> <라운드> - 몬스터가 죽었을때 떨구는 아이템을 설정하는 GUI를 엽니다.\n" +
+                                ChatColor.GRAY + "쿨타임 시간 안에 몬스터를 못 잡을 경우 아레나에서 퇴장 당합니다. \n" +
+                                "\n");
             }
         }
 
@@ -221,15 +244,14 @@ public class ArenaCmd implements CommandExecutor, TabCompleter {
         Config config;
         if (args.length == 1) {
             if (sender.isOp()) {
+                result.add("입장");
                 result.add("create");
                 result.add("edit");
-                result.add("입장");
                 result.add("mob");
                 result.add("spawn");
                 result.add("round");
                 result.add("amount");
                 result.add("cooltime");
-
             }
             result.add("입장");
         } else if (args.length == 2) {
@@ -237,18 +259,12 @@ public class ArenaCmd implements CommandExecutor, TabCompleter {
             if (sender.isOp()) {
                 switch (args[0]) {
                     case "edit":
-
                         config.setFileListTabComplete(result);
                         return result;
-
                     case "create":
                         result.add("<이름>");
                         return result;
-
                     case "mob":
-                        result.add("create");
-                        result.add("edit");
-                        result.add("dropitem");
                         result.add("add");
                         result.add("remove");
                         result.add("amount");
@@ -272,7 +288,16 @@ public class ArenaCmd implements CommandExecutor, TabCompleter {
                     case "cooltime":
                         config.setFileListTabComplete(result);
                         break;
+                    case "cancel":
+                        config.setFileListTabComplete(result);
+                        break;
 
+                }
+            } else {
+                switch (args[0]) {
+                    case "입장":
+                        config.setFileListTabComplete(result);
+                        break;
                 }
             }
         } else if (args.length == 3) {

@@ -3,6 +3,13 @@ main: me.github.mobarena.MobArena
 version: 1.0
 author: SkyExcel
 api-version: 1.13
-depend: [MythicMobs,ProtocolLib,WorldEdit]
+depend:
+  - MythicMobs
+  - ProtocolLib
+  - WorldEdit
+  - SkyExcelCore
+
 commands:
   arena:
+    description: 몹 아래나 명령어를 확인합니다.
+    aliases: [ 아레나 ]

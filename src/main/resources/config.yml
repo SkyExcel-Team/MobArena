@@ -42,3 +42,10 @@ message:
     fade-in: 10
     fade-out: 70
     stay: 20
+  final-round:
+    msg: "마지막 라운드입니다!"
+    send-type: Message
+    # Messag-send-type 이 Title이거나, Subtitle 일때 설정하시면 됩니다.
+    fade-in: 10
+    fade-out: 70
+    stay: 20

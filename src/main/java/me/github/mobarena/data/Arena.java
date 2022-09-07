@@ -1,6 +1,5 @@
 package me.github.mobarena.data;
 
-import com.google.common.base.Preconditions;
 import com.sk89q.worldedit.IncompleteRegionException;
 import com.sk89q.worldedit.math.BlockVector3;
 import me.github.mobarena.MobArena;
@@ -9,22 +8,18 @@ import me.github.mobarena.Util.Translate;
 import me.github.mobarena.hook.MythicMobs;
 import me.github.mobarena.runnable.Delay;
 import me.github.mobarena.runnable.Particle.ParticleShooter;
-import me.github.skyexcelcore.data.Config;
-import me.github.skyexcelcore.data.Region;
-import me.github.skyexcelcore.data.Time;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionType;
-
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
-
+import data.Config;
+import data.Region;
+import data.Time;
 public class Arena {
     private String name;
 
@@ -40,6 +35,14 @@ public class Arena {
         this.name = name;
         this.player = player;
         this.config = MobArena.ArenaConfig = new Config("arena/" + this.name + "/" + this.name);
+        this.config.setPlugin(MobArena.plugin);
+    }
+
+
+    public Arena(String name) {
+        this.name = name;
+        this.config = MobArena.ArenaConfig = new Config("arena/" + this.name + "/" + this.name);
+        this.config.setPlugin(MobArena.plugin);
     }
 
     public void Create() {
@@ -146,6 +149,8 @@ public class Arena {
         return cooltime.getLong("cooltime");
     }
 
+
+
     public void SetSpawn() {
         if (config.isFileExist()) {
             config.setLocation("arena.spawn", player.getLocation());
@@ -182,7 +187,7 @@ public class Arena {
         }
     }
 
-    public void startDelay(){
+    public void startDelay() {
         PlayerData data = new PlayerData(player);
         data.setDelay(0);
     }
@@ -199,20 +204,29 @@ public class Arena {
     }
 
     public void addPlayer() {
-        int maxplayer = config.getInteger("arena.maxplayers");
+        int maxplayer = config.getInteger("arena.max-player");
+
         if (config.get("arena.players") != null) {
             List<String> uuid = (List<String>) config.getConfig().getList("arena.players");
+
             if (!uuid.contains(player.getUniqueId().toString())) {
-                if (uuid.size() > maxplayer) {
-                    uuid.add(player.getUniqueId().toString());
-                    config.setObject("arena.players", uuid);
-                    TeleportSpawn();
-                    StringData.sendJoinMessage(player);
+                PlayerData data = new PlayerData(player);
+                data.setArena(name, 0);
+
+                uuid.add(player.getUniqueId().toString());
+                config.setObject("arena.players", uuid);
+
+                if (uuid.size() == maxplayer) {
+                    StartRound(name);
                 } else {
-                    if (!uuid.contains(player.getUniqueId())) {
-                        player.sendMessage("§c해당 아레나는 인원이 꽉 찾습니다!");
-                    }
+                    player.sendMessage("사람을 기달리고 있습니다... " + uuid.size() + "/" + maxplayer);
                 }
+
+
+                TeleportSpawn();
+                StringData.sendJoinMessage(player);
+            } else {
+                player.sendMessage(MobArena.prefix + "§c해당 아래나가 끝날때 까지 기달려 주세요");
             }
         } else {
             List<String> uuid = new ArrayList<>();
@@ -227,10 +241,21 @@ public class Arena {
         }
     }
 
-    public void removePlayer() {
+    public List<String>  getPlayerUUID() {
+        List<String> uuid = (List<String>) config.getConfig().getList("arena.players");
+
+        return uuid;
+    }
+
+    public void removePlayer(Player player) {
         if (config.get("arena.players") != null) {
             List<String> uuid = (List<String>) config.getConfig().getList("arena.players");
-            uuid.remove(player.getUniqueId());
+
+
+
+            uuid.remove(player.getUniqueId().toString());
+
+
             config.setObject("arena.players", uuid);
         }
     }
@@ -263,6 +288,8 @@ public class Arena {
             mobsection.set("amount", 0);
             mobsection.set("spawn", player.getLocation());
             mobsection.set("radius", 0);
+            mobsection.set("drop.item", new ArrayList<>());
+            mobsection.set("drop.exp", 0);
             mob.saveConfig();
         } else {
             mob.getConfig().createSection("round." + index);
@@ -270,32 +297,65 @@ public class Arena {
             mobsection.set("amount", 0);
             mobsection.set("spawn", player.getLocation());
             mobsection.set("radius", 0);
+            mobsection.set("drop.item", new ArrayList<>());
+            mobsection.set("drop.exp", 0);
             mob.saveConfig();
         }
     }
+
+    private HashMap<String, List<String>> mobs = new HashMap<>();
+
+    private void addMob(String mob) {
+        if (mobs.get(name) == null) {
+            List<String> names = new ArrayList<>();
+            names.add(mob);
+            mobs.put(name, names);
+
+        } else {
+            List<String> names = mobs.get(name);
+            names.add(mob);
+            mobs.put(name, names);
+        }
+        System.out.println(mobs);
+    }
+
+    public List<String> getMob() {
+        System.out.println(name);
+        return mobs.get(name);
+    }
+
 
     public void SpawnAtRound(String name, int round) {
         Arena arena = new Arena(name, player);
 
         for (String names : arena.getMonster(round)) {
             Config mobs = new Config("arena/" + this.name + "/mob/" + names); // 몹 컨피그를 불러옴.
+            mobs.setPlugin(MobArena.plugin);
             ConfigurationSection mobsection = mobs.getConfig().getConfigurationSection("round." + round); //라운드의 mob section을 불러옴.
             if (mobsection != null) {
                 Location location = (Location) mobsection.get("spawn"); //몹에 스폰 위치를 불러옴.
+
                 int amount = mobsection.getInt("amount"); // Mob 의 amount값을 불러옴.
                 this.total += amount; // 스폰이 되면서 amount 값 만큼 total변수 증가.
+
                 location.add(0, 1, 0);
                 for (int i = 0; i < amount; i++) {
                     MythicMobs.spawnMob(names, location);
+
+                    if (MythicMobs.getMobByName(names).getEntityType() != null) {
+                        addMob(MythicMobs.getMobByName(names).getEntityType());
+                    } else {
+                        addMob(names);
+                    }
                 }
             }
-            setTotal(round); // Total 값을 round에 설정.
+            setTotal(); // Total 값을 round에 설정.
         }
     }
 
-    public void setTotal(int round) {
-        ConfigurationSection arenasection = config.getConfig().getConfigurationSection("arena.round." + round);
-        arenasection.set("total", total);
+    public void setTotal() {
+
+        config.setInteger("total", total);
         config.saveConfig();
     }
 
@@ -311,10 +371,9 @@ public class Arena {
         return false;
     }
 
-    public int getTotal(int round) {
-        ConfigurationSection arenasection = config.getConfig().getConfigurationSection("arena.round." + round);
+    public int getTotal() {
 
-        return arenasection.getInt("total");
+        return config.getInteger("total");
     }
 
     public void SetMonsterSpawn(int index, String type) {
@@ -364,6 +423,14 @@ public class Arena {
         List<String> list = (List<String>) section.getList("mobs");
 
         return list;
+    }
+
+    public void setCancelLocation() {
+        config.setLocation("cancel", player.getLocation());
+    }
+
+    public Location getCancelLocation() {
+        return config.getLocation("cancel");
     }
 
     public Region getRegion() {

@@ -1,12 +1,9 @@
 package me.github.mobarena.runnable;
 
-import me.github.mobarena.MobArena;
 import me.github.mobarena.Util.StringData;
 import me.github.mobarena.data.Arena;
 import me.github.mobarena.data.PlayerData;
-import me.github.mobarena.hook.MythicMobs;
-import me.github.skyexcelcore.data.Config;
-import me.github.skyexcelcore.data.Time;
+import data.Time;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -34,7 +31,7 @@ public class CoolTime extends BukkitRunnable {
     @Override
     public void run() {
         this.arena = new Arena(playerdata.getArena(), player);
-        int total = arena.getTotal(playerdata.getRound());
+        int total = arena.getTotal();
         if (total != 1) {
             if (time.SECOND() != 0 || time.MINUTE() != 0) {
                 Cooltime = time.minSecond(1);

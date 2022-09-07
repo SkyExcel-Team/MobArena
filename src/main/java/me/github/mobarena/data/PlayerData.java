@@ -3,19 +3,15 @@ package me.github.mobarena.data;
 import me.github.mobarena.MobArena;
 import me.github.mobarena.runnable.CoolTime;
 import me.github.mobarena.runnable.Delay;
-import me.github.skyexcelcore.data.Config;
-import org.bukkit.configuration.ConfigurationSection;
+import data.Config;
+import data.Region;
+import data.Time;
 import org.bukkit.entity.Player;
-
 import java.util.HashMap;
 import java.util.UUID;
 
-
 public class PlayerData {
-
-
     private HashMap<UUID, CoolTime> CoolTime = new HashMap<>();
-
     private HashMap<UUID, Delay> delay = new HashMap<>();
     private Player player;
     private Config config;
@@ -26,6 +22,7 @@ public class PlayerData {
     public PlayerData(Player player) {
         this.player = player;
         config = MobArena.PlayerData = new Config("data/" + player.getUniqueId());
+        config.setPlugin(MobArena.plugin);
     }
 
     public void setArena(String name, int round) {
@@ -56,15 +53,12 @@ public class PlayerData {
     }
 
     public void delayStart() {
-
-
         Delay delay = new Delay(player, this);
 
         if (!this.delay.containsKey(player.getUniqueId()))
             this.delay.put(player.getUniqueId(), delay);
         if (this.delay.containsKey(player.getUniqueId()))
             this.delay.get(player.getUniqueId()).runTaskTimer(MobArena.plugin, 0, 20);
-
     }
 
 
@@ -82,7 +76,8 @@ public class PlayerData {
     }
 
     public int getTotal() {
-        return arena.getTotal(getRound());
+        Arena arena = new Arena(getArena(), player);
+        return arena.getTotal();
     }
 
     public void nextRound() {
@@ -98,7 +93,6 @@ public class PlayerData {
             }
         }
 
-        player.sendMessage("다음 라운드로 넘어갑니다! " + round);
         config.setInteger("arena.round", round + 1);
         config.saveConfig();
 
