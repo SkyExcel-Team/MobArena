@@ -1,25 +1,23 @@
-package me.github.mobarena;
+package java.me.github.mobarena;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import me.github.mobarena.cmd.ArenaCmd;
-import me.github.mobarena.data.Arena;
-import me.github.mobarena.data.PlayerData;
-import me.github.mobarena.event.EntityDeathEvent;
-import me.github.mobarena.event.JoinEvent;
-import me.github.mobarena.event.QuitEvent;
-import me.github.mobarena.event.SpawnEvent;
-import me.github.mobarena.hook.ArenaExpansion;
 import data.Config;
 import data.Region;
-import data.Time;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.Listener;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.me.github.mobarena.cmd.ArenaCmd;
+import java.me.github.mobarena.data.Arena;
+import java.me.github.mobarena.data.PlayerData;
+import java.me.github.mobarena.event.EntityDeathEvent;
+import java.me.github.mobarena.event.JoinEvent;
+import java.me.github.mobarena.event.QuitEvent;
+import java.me.github.mobarena.event.SpawnEvent;
+import java.me.github.mobarena.hook.ArenaExpansion;
 import java.util.Arrays;
 
 public class MobArena extends JavaPlugin implements Listener {
@@ -85,7 +83,7 @@ public class MobArena extends JavaPlugin implements Listener {
     public void TeleportPlayer() {
         Bukkit.getOnlinePlayers().forEach(players -> {
 
-            PlayerData data = new PlayerData(players);
+            java.me.github.mobarena.data.PlayerData data = new PlayerData(players);
             Arena arena = new Arena(data.getArena(), players);
             Region region = new Region(arena.getPos1(), arena.getPos2());
 
@@ -113,20 +111,5 @@ public class MobArena extends JavaPlugin implements Listener {
         Plugin worldedit = Bukkit.getServer().getPluginManager().getPlugin("WorldEdit");
         if (worldedit instanceof WorldEditPlugin) return (WorldEditPlugin) worldedit;
         else return null;
-    }
-
-
-    public enum SupportVersion {
-        v1_18_2("v1_18_R2");
-
-        private String version;
-
-        SupportVersion(String version) {
-            this.version = version;
-        }
-
-        public String getVersion() {
-            return version;
-        }
     }
 }
