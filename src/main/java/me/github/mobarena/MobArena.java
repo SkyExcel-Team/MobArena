@@ -9,9 +9,7 @@ import me.github.mobarena.event.JoinEvent;
 import me.github.mobarena.event.QuitEvent;
 import me.github.mobarena.event.SpawnEvent;
 import me.github.mobarena.hook.ArenaExpansion;
-import data.Config;
-import data.Region;
-import data.Time;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.Listener;
@@ -19,6 +17,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import skyexcel.data.file.Config;
+import skyexcel.data.location.Region;
 
 import java.util.Arrays;
 

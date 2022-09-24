@@ -2,9 +2,7 @@ package me.github.mobarena.cmd;
 
 import me.github.mobarena.MobArena;
 import me.github.mobarena.Util.Translate;
-import me.github.mobarena.data.Arena;
 import me.github.mobarena.data.Mob;
-import me.github.mobarena.hook.MythicMobs;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -16,6 +14,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import me.github.mobarena.data.Arena;
 import skyexcel.data.Time;
 import skyexcel.data.file.Config;
 import skyexcel.data.location.Region;
@@ -31,7 +31,8 @@ public class ArenaCmd implements CommandExecutor, TabCompleter {
             Player player = (Player) sender;
             String name;
             Arena arena;
-
+            String type;
+            int round;
             if (args.length > 0) {
                 switch (args[0]) {
                     case "test":
@@ -113,10 +114,10 @@ public class ArenaCmd implements CommandExecutor, TabCompleter {
                         }
                         break;
                     case "edit":
-                        switch (args[2]) {
+                        switch (args[1]) {
                             case "max-player":
                                 if (args.length > 3) {
-                                    name = args[1];
+                                    name = args[2];
                                     int amount = Integer.parseInt(args[3]);
                                     arena = new Arena(name, player);
                                     arena.setMaxPlayer(amount);
@@ -132,7 +133,7 @@ public class ArenaCmd implements CommandExecutor, TabCompleter {
                             int hours = Integer.parseInt(args[3]);
                             int minutes = Integer.parseInt(args[4]);
                             int seconds = Integer.parseInt(args[5]);
-                            int round = Integer.parseInt(args[6]);
+                            round = Integer.parseInt(args[6]);
 
                             Time time = new Time(day, hours, minutes, seconds);
                             arena = new Arena(name, player);
@@ -144,20 +145,13 @@ public class ArenaCmd implements CommandExecutor, TabCompleter {
                         if (args.length > 1) {
                             switch (args[1]) {
                                 case "spawn":
-                                    if (args.length > 5) {
-                                        name = args[2];
-                                        String type = args[3];
-                                        int round = Integer.parseInt(args[4]);
-                                        int radius = Integer.parseInt(args[5]);
-                                        arena = new Arena(name, player);
-                                        arena.SetMonsterRadius(round, type, radius);
-                                    } else if (args.length > 4) {
-                                        name = args[2];
-                                        String type = args[3];
-                                        int round = Integer.parseInt(args[4]);
-                                        arena = new Arena(name, player);
-                                        arena.SetMonsterSpawn(round, type);
-                                    }
+
+                                    name = args[2];
+                                    type = args[3];
+                                    round = Integer.parseInt(args[4]);
+                                    arena = new Arena(name, player);
+                                    arena.SetMonsterSpawn(round, type);
+
                                     break;
                                 case "edit":
                                     if (args.length > 2) {
@@ -171,12 +165,13 @@ public class ArenaCmd implements CommandExecutor, TabCompleter {
                                     break;
                                 case "add":
                                     if (args.length > 2) {
-                                        String type = args[2];
+                                        type = args[2];
                                         if (args.length > 3) {
                                             name = args[3];
                                             if (args.length > 4) {
                                                 int index = Integer.parseInt(args[4]);
                                                 arena = new Arena(name, player);
+
                                                 arena.AddMonster(index, type);
                                             }
                                         }
@@ -184,7 +179,7 @@ public class ArenaCmd implements CommandExecutor, TabCompleter {
                                     break;
                                 case "remove":
                                     if (args.length > 2) {
-                                        String type = args[2];
+                                        type = args[2];
                                         if (args.length > 3) {
                                             name = args[3];
                                             if (args.length > 4) {
@@ -201,13 +196,24 @@ public class ArenaCmd implements CommandExecutor, TabCompleter {
                                 case "amount":
                                     if (args.length > 5) {
                                         name = args[2];
-                                        String type = args[3];
-                                        int round = Integer.parseInt(args[4]);
+                                        type = args[3];
+                                        round = Integer.parseInt(args[4]);
                                         int amount = Integer.parseInt(args[5]);
                                         arena = new Arena(name, player);
                                         arena.SetMonsterAmount(round, amount, type);
                                     }
                                     break;
+                                case "dropitem":
+                                    if (args.length > 4) {
+                                        name = args[2];
+                                        type = args[3];
+                                        round = Integer.parseInt(args[4]);
+
+                                        arena = new Arena(name, player);
+                                        arena.AddMonsterDropItem(round, type);
+                                    }
+                                    break;
+
                             }
                         }
                         break;
@@ -218,7 +224,7 @@ public class ArenaCmd implements CommandExecutor, TabCompleter {
                                 "/arena create <이름> - 아래나를 생성 합니다.\n" +
                                 "\n" +
                                 ChatColor.GRAY + "아레나 생성 전, 월드에딧으로 아레나 영역을 지정해야 합니다. \n" + ChatColor.WHITE +
-                                "/arena edit <이름> - 아레나 편집 GUI를 엽니다. \n" +
+                                "/arena edit max-player <이름> <amount>- 해당 아레나 max-player를 설정합니다. \n" +
                                 "/arena spawn <이름>  - 플레이어가 이동 될 아레나의 위치를 지정합니다. \n" +
                                 "/arena round <이름> - 라운드를 추가합니다. \n" +
                                 "/arena cooltime <이름> <cooltime> <round> - 라운드 제한시간 입니다. \n" +
@@ -230,6 +236,8 @@ public class ArenaCmd implements CommandExecutor, TabCompleter {
                                 "/arena mob edit <이름> - 몹을 편집하는 GUI를 엽니다.\n" +
                                 "/arena mob dropitem <몬스터 이름> <라운드> - 몬스터가 죽었을때 떨구는 아이템을 설정하는 GUI를 엽니다.\n" +
                                 ChatColor.GRAY + "쿨타임 시간 안에 몬스터를 못 잡을 경우 아레나에서 퇴장 당합니다. \n" +
+                                "§f/arena mob spawn <이름> <타입> <라운드> - 몹 스폰을 설정합니다.\n" +
+
                                 "\n");
             }
         }
@@ -241,7 +249,8 @@ public class ArenaCmd implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         ArrayList<String> result = new ArrayList<>();
-        Config config;
+        Config config = new Config("/arena");
+        config.setPlugin(MobArena.plugin);
         if (args.length == 1) {
             if (sender.isOp()) {
                 result.add("입장");
@@ -256,6 +265,7 @@ public class ArenaCmd implements CommandExecutor, TabCompleter {
             result.add("입장");
         } else if (args.length == 2) {
             config = new Config("/arena");
+
             if (sender.isOp()) {
                 switch (args[0]) {
                     case "edit":
@@ -277,7 +287,7 @@ public class ArenaCmd implements CommandExecutor, TabCompleter {
                         break;
 
                     case "입장":
-
+                        config.setPlugin(MobArena.plugin);
                         config.setFileListTabComplete(result);
                         break;
                     case "spawn":
@@ -310,8 +320,8 @@ public class ArenaCmd implements CommandExecutor, TabCompleter {
                             break;
 
                         case "add":
-                            for (String names : MythicMobs.getMythicMobList()) {
-                                result.add(names);
+                            for (EntityType entities : EntityType.values()) {
+                                result.add(entities.name());
                             }
                             break;
                         case "remove":
@@ -326,6 +336,7 @@ public class ArenaCmd implements CommandExecutor, TabCompleter {
                             break;
                         case "spawn":
                             config = new Config("/arena");
+                            config.setPlugin(MobArena.plugin);
                             config.setFileListTabComplete(result);
                             break;
                     }
@@ -346,6 +357,7 @@ public class ArenaCmd implements CommandExecutor, TabCompleter {
                     switch (args[1]) {
                         case "add":
                             config = new Config("/arena");
+                            config.setPlugin(MobArena.plugin);
                             config.setFileListTabComplete(result);
                             break;
                         case "edit":
@@ -359,6 +371,7 @@ public class ArenaCmd implements CommandExecutor, TabCompleter {
 
                         case "spawn":
                             config = new Config("arena/" + args[2] + "/mob/");
+                            config.setPlugin(MobArena.plugin);
                             config.setFileListTabComplete(result);
                             break;
 
@@ -383,6 +396,7 @@ public class ArenaCmd implements CommandExecutor, TabCompleter {
 
                     case "spawn":
                         config = new Config("arena/" + args[2] + "/" + args[2]);
+                        config.setPlugin(MobArena.plugin);
                         int index = config.getConfig().getConfigurationSection("arena.round").getKeys(false).size();
 
                         for (int i = 0; i < index; i++) {
@@ -397,7 +411,7 @@ public class ArenaCmd implements CommandExecutor, TabCompleter {
 
 
                     config = MobArena.ArenaConfig = new Config("arena/" + args[3] + "/" + args[3]);
-
+                    config.setPlugin(MobArena.plugin);
                     int index = config.getConfig().getConfigurationSection("arena.round").getKeys(false).size();
 
                     for (int i = 0; i < index; i++) {

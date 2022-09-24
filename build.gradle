@@ -30,7 +30,7 @@ dependencies {
     compileOnly 'io.lumine:Mythic-Dist:5.0.1-SNAPSHOT'
     compileOnly 'me.clip:placeholderapi:2.11.2'
 
-    implementation 'com.github.SkyExcel-Team:SkyExcelCore:v1.0.2'
+    implementation 'com.github.SkyExcel-Team:SkyExcelCore:v1.0.5'
     compileOnly group: "com.comphenix.protocol", name: "ProtocolLib", version: "4.7.0";
 }
 

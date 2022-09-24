@@ -1,0 +1,5 @@
+name: MobArena
+main: me.github.mobarena.MobArena
+version: 1.0
+commands:
+  arena:
